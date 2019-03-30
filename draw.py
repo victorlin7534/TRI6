@@ -10,9 +10,10 @@ def add_polygon( polygons, x0, y0, z0, x1, y1, z1, x2, y2, z2 ):
 def draw_polygons( polygons, screen, color ):
     i = 0
     while i < len(polygons):
-        draw_line(int(polygons[i][0]),int(polygons[i][1]),int(polygons[i+1][0]),int(polygons[i+1][1]),screen,color)
-    	draw_line(int(polygons[i+1][0]),int(polygons[i+1][1]),int(polygons[i+2][0]),int(polygons[i+2][1]),screen,color)
-    	draw_line(int(polygons[i+2][0]),int(polygons[i+2][1]),int(polygons[i][0]),int(polygons[i][1]),screen,color)
+        if(norm(polygons,i)[2]>0):
+            draw_line(int(polygons[i][0]),int(polygons[i][1]),int(polygons[i+1][0]),int(polygons[i+1][1]),screen,color)
+            draw_line(int(polygons[i+1][0]),int(polygons[i+1][1]),int(polygons[i+2][0]),int(polygons[i+2][1]),screen,color)
+            draw_line(int(polygons[i+2][0]),int(polygons[i+2][1]),int(polygons[i][0]),int(polygons[i][1]),screen,color)
         i+= 3
 
 
@@ -30,7 +31,7 @@ def add_box( polygons, x, y, z, width, height, depth ):
     add_polygon(polygons, x1, y, z, x1, y1, z1,x1,y,z1)
 
     #left
-    add_polygon(polygons, x, y, z, x, y1, z,x,y1,z1)
+    add_polygon(polygons, x, y, z, x, y1, z1,x,y1,z)
     add_polygon(polygons, x, y, z, x, y, z1,x,y1,z1)
 
     #top
@@ -38,12 +39,12 @@ def add_box( polygons, x, y, z, width, height, depth ):
     add_polygon(polygons, x, y, z, x1, y, z1,x,y,z1)
 
     #bot
-    add_polygon(polygons, x, y1, z, x1, y1, z,x1,y1,z1)
-    add_polygon(polygons, x, y1, z, x1, y1, z1,x,y1,z1)
+    add_polygon(polygons, x, y1, z, x, y1, z1,x1,y1,z)
+    add_polygon(polygons, x1, y1, z1, x, y1, z,x,y1,z1)
 
     #back
-    add_polygon(polygons, x, y, z1, x, y1, z1,x1,y1,z1)
-    add_polygon(polygons, x, y, z1, x1, y1, z1,x1,y,z1)
+    add_polygon(polygons, x, y, z1, x1, y, z1,x1,y1,z1)
+    add_polygon(polygons, x, y, z1, x1, y, z1,x1,y1,z1)
 
 def add_sphere(polygons, cx, cy, cz, r, step ):
     points = generate_sphere(cx, cy, cz, r, step)
@@ -59,14 +60,14 @@ def add_sphere(polygons, cx, cy, cz, r, step ):
             index = lat * step + longt
 
             add_polygon(polygons, points[index][0],
-                     points[index][1],
-                     points[index][2],
-                     points[(index+step)%420][0],
-                     points[(index+step)%420][1],
-                     points[(index+step)%420][2],
-                     points[(index+1)%420][0],
-                     points[(index+1)%420][1],
-                     points[(index+1)%420][2],)
+                         points[index][1],
+                         points[index][2],
+                         points[(index+step)%420][0],
+                         points[(index+step)%420][1],
+                         points[(index+step)%420][2],
+                         points[(index+1)%420 if longt==longt_stop else index][0],
+                         points[(index+1)%420 if longt==longt_stop else index][1],
+                         points[(index+1)%420 if longt==longt_stop else index][2])
 
 def generate_sphere( cx, cy, cz, r, step ):
     points = []
@@ -107,9 +108,9 @@ def add_torus(polygons, cx, cy, cz, r0, r1, step ):
                      points[(index+step)%400][0],
                      points[(index+step)%400][1],
                      points[(index+step)%400][2],
-                     points[(index+1)%400][0],
-                     points[(index+1)%400][1],
-                     points[(index+1)%400][2],)
+                     points[(index+step+1)%400][0],
+                     points[(index+step+1)%400][1],
+                     points[(index+step+1)%400][2],)
 
 def generate_torus( cx, cy, cz, r0, r1, step ):
     points = []
@@ -176,16 +177,16 @@ def draw_lines( matrix, screen, color ):
                    int(matrix[point][1]),
                    int(matrix[point+1][0]),
                    int(matrix[point+1][1]),
-                   screen, color)    
+                   screen, color)
         point+= 2
-        
+
 def add_edge( matrix, x0, y0, z0, x1, y1, z1 ):
     add_point(matrix, x0, y0, z0)
     add_point(matrix, x1, y1, z1)
-    
+
 def add_point( matrix, x, y, z=0 ):
     matrix.append( [x, y, z, 1] )
-    
+
 
 
 
@@ -209,7 +210,7 @@ def draw_line( x0, y0, x1, y1, screen, color ):
     if ( abs(x1-x0) >= abs(y1 - y0) ):
 
         #octant 1
-        if A > 0:            
+        if A > 0:
             d = A + B/2
 
             while x < x1:
