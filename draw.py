@@ -1,5 +1,6 @@
 from display import *
 from matrix import *
+from gmath import *
 
 
 def add_polygon( polygons, x0, y0, z0, x1, y1, z1, x2, y2, z2 ):
@@ -59,15 +60,25 @@ def add_sphere(polygons, cx, cy, cz, r, step ):
         for longt in range(longt_start, longt_stop+1):
             index = lat * step + longt
 
-            add_polygon(polygons, points[index][0],
-                         points[index][1],
-                         points[index][2],
-                         points[(index+step)%420][0],
-                         points[(index+step)%420][1],
-                         points[(index+step)%420][2],
-                         points[(index+1)%420 if longt==longt_stop else index][0],
-                         points[(index+1)%420 if longt==longt_stop else index][1],
-                         points[(index+1)%420 if longt==longt_stop else index][2])
+            if longt != longt_stop:
+				add_polygon(polygons, points[index][0],
+	                         points[index][1],
+	                         points[index][2],
+	                         points[(index+1)%420][0],
+	                         points[(index+1)%420][1],
+	                         points[(index+1)%420][2],
+	                         points[(index+step)%420][0],
+	                         points[(index+step)%420][1],
+	                         points[(index+step)%420][2])
+				add_polygon(polygons, points[(index+1)%420][0],
+	                         points[(index+1)%420][1],
+	                         points[(index+1)%420][2],
+	                         points[(index+step+1)%420][0],
+	                         points[(index+step+1)%420][1],
+	                         points[(index+step+1)%420][2],
+	                         points[(index+step)%420][0],
+	                         points[(index+step)%420][1],
+	                         points[(index+step)%420][2])
 
 def generate_sphere( cx, cy, cz, r, step ):
     points = []
@@ -105,12 +116,12 @@ def add_torus(polygons, cx, cy, cz, r0, r1, step ):
             add_polygon(polygons, points[index][0],
                      points[index][1],
                      points[index][2],
+                     points[(index+1)%400][0],
+                     points[(index+1)%400][1],
+                     points[(index+1)%400][2],
                      points[(index+step)%400][0],
                      points[(index+step)%400][1],
-                     points[(index+step)%400][2],
-                     points[(index+step+1)%400][0],
-                     points[(index+step+1)%400][1],
-                     points[(index+step+1)%400][2],)
+                     points[(index+step)%400][2],)
 
 def generate_torus( cx, cy, cz, r0, r1, step ):
     points = []
